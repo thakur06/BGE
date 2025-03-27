@@ -46,17 +46,15 @@ export function PLCV() {
   const [maxRadio, setMaxRadio] = useState('required cv');
 
   const [max_xp1, setMaxexp1] = useState(0);
-  const [max_xp2, setMaxexp2] = useState(0);
-
   const [selectedGas, setSelectedGas] = useState("");
-  const [mass, setMass] = useState(null);
+  const [gasMassInput, setGasMassInput] = useState("");
 
-  const handleGasChanges = (e) => {
+  const handleGasSelection = (e) => {
     const gas = e.target.value;
     setSelectedGas(gas);
-    setMass(gasMasses[gas]);
+    // Set the corresponding mass to the input box
+    setGasMassInput(gasMasses[gas] || "");
   };
-
   const gasDensity = () => {
     const result = (
       (1 * maxFormData.methane * fx1 / stat) +
@@ -100,309 +98,157 @@ export function PLCV() {
   };
 
   return (
-    <div className="p-2 sm:p-4 flex items-center justify-center">
-          <div className="p-4 max-w-md mx-auto">
-      <label htmlFor="gas" className="block text-sm font-medium text-gray-700 mb-2">
-        Select a Gas
-      </label>
-      <select
-        name="gas"
-        id="gas"
-        value={selectedGas}
-        onChange={handleGasChanges}
-        className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        <option value="">-- Choose a gas --</option>
-        {Object.keys(gasMasses).map((gas) => (
-          <option key={gas} value={gas}>
-            {gas}
-          </option>
-        ))}
-      </select>
-
-      {mass !== null && (
-        <div className="mt-4 text-gray-800">
-          <strong>Selected Gas:</strong> {selectedGas} <br />
-          <strong>Molecular Mass:</strong> {mass} g/mol
+<div className="min-h-screen bg-gray-50 py-4 px-3 sm:px-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Header optimized for mobile */}
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl font-bold text-amber-900">Control Valve Calculator</h1>
+          <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-green-600">
+            Calculate gas density and flow parameters
+          </p>
         </div>
-      )}
-    </div>
-      <form
-        onSubmit={handleSubmit}
-        className=" p-2  sm:p-4 w-full "
-      >
 
-        <div className="flex w-full flex-col gap-16 md:flex-row md:justify-evenly">
-          {/* Max CV Column */}
-          <div className="space-y-1 sm:space-y-2  float-start p-3 rounded-4xl shadow shadow-green-600  border-2 border-green-600 ">
-            <h3 className="text-sm sm:text-md font-semibold text-green-600 text-center">
-              Max CV Model
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          <div className="bg-white shadow-sm sm:shadow rounded-lg overflow-hidden">
+            {/* Max CV Model Section */}
+            <div className="p-4 sm:p-6 border-b border-gray-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-2">
+                <h3 className="text-base sm:text-lg font-medium text-green-600">Max CV Model</h3>
+                <div className="flex items-center justify-center sm:justify-start">
+                  <label className="inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={maxRadio === 'required flow'}
+                      onChange={handleMaxRadioChange}
+                      className="sr-only peer"
+                    />
+                    <div className="relative w-10 h-5 sm:w-11 sm:h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                    <span className="ms-2 text-xs sm:text-sm font-medium text-gray-700">
+                      {maxRadio === 'required flow' ? 'Required Flow' : 'Required CV'}
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Input Grid - optimized for mobile */}
+              <div className="grid grid-cols-1 gap-3 mb-4 sm:mb-6 sm:grid-cols-2 sm:gap-4">
+                {[
+                  { name: "unknown", label: "Unknown", step: "0.001" },
+                  { name: "downstreamPressure", label: "P2 (bar)", step: "0.01" },
+                  { name: "flow", label: "Flow", step: "0.001" },
+                  { name: "flowCondition", label: "Flow Condition", step: "0.001" },
+                  { name: "controlValve", label: "Control Valve CV", step: "0.001" },
+                  { name: "inletTemp", label: "Inlet Temp (°C)", step: "0.001" }
+                ].map((field) => (
+                  <div key={field.name} className="space-y-1 sm:space-y-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                      {field.label}
+                    </label>
+                    <input
+                      type="number"
+                      name={field.name}
+                      value={maxFormData[field.name]}
+                      onChange={handleMaxChange}
+                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 text-xs sm:text-sm p-2 border h-8 sm:h-auto"
+                      placeholder={field.label}
+                      step={field.step}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Gas Composition Section - optimized for mobile */}
+              <div>
+                <h4 className="text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">
+                  Gas Composition (%)
+                </h4>
+                <div className="grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-3">
+                  {[
+                    { name: "methane", label: "CH4" },
+                    { name: "carbonDioxide", label: "CO2" },
+                    { name: "nitrogen", label: "N2" },
+                    { name: "oxygen", label: "O2" },
+                    { name: "h2s", label: "H2S" },
+                    { name: "water", label: "H2O" }
+                  ].map((gas) => (
+                    <div key={gas.name} className="space-y-1">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                        {gas.label}
+                      </label>
+                      <input
+                        type="number"
+                        name={gas.name}
+                        value={maxFormData[gas.name]}
+                        onChange={handleMaxChange}
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 text-xs sm:text-sm p-2 border h-8 sm:h-auto"
+                        placeholder="0-100"
+                        min="0"
+                        max="100"
+                        step="0.001"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+<div className="bg-white shadow-sm sm:shadow rounded-lg overflow-hidden p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-medium text-green-600 mb-3 sm:mb-4">
+              Gas Selection
             </h3>
-            <div>
-              <label className="toggle-label">
-                <input
-                  type="checkbox"
-                  checked={maxRadio === 'required flow'}
-                  onChange={handleMaxRadioChange}
-                  className="toggle-input"
-                />
-
-              </label>
-
-              <p>Current state: {maxRadio}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-1 sm:gap-2">
-              <div>
-                <label
-                  htmlFor="maxUnknown"
-                  className="block text-[10px] sm:text-xs font-medium text-gray-700"
-                >
-                  unknown
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1 sm:space-y-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                  Select Gas
                 </label>
-                <input
-                  type="number"
-                  id="maxUnknown"
-                  name="unknown"
-                  value={maxFormData.unknown}
-                  onChange={handleMaxChange}
-                  className="mt-0.5 sm:mt-1 w-full px-1 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
-                  placeholder="unknown"
-                  step="0.001"
-                />
+                <select
+                  value={selectedGas}
+                  onChange={handleGasSelection}
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 text-xs sm:text-sm p-2 border h-8 sm:h-auto"
+                >
+                  <option value="">-- Select a gas --</option>
+                  {Object.keys(gasMasses).map((gas) => (
+                    <option key={gas} value={gas}>
+                      {gas.charAt(0).toUpperCase() + gas.slice(1).replace(/([A-Z])/g, ' $1')}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <div>
-                <label
-                  htmlFor="maxDownstreamPressure"
-                  className="block text-[10px] sm:text-xs font-medium text-gray-700"
-                >
-                  P2 (bar)
+              <div className="space-y-1 sm:space-y-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                  Gas Mass (kg/m³)
                 </label>
                 <input
                   type="number"
-                  id="maxDownstreamPressure"
-                  name="downstreamPressure"
-                  value={maxFormData.downstreamPressure}
-                  onChange={handleMaxChange}
-                  className="mt-0.5 sm:mt-1 w-full px-1 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
-                  placeholder="Pressure"
-                  step="0.01"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="maxflow"
-                  className="block text-[10px] sm:text-xs font-medium text-gray-700"
-                >
-                  Flow
-                </label>
-                <input
-                  type="number"
-                  id="maxflow"
-                  name="flow"
-                  value={maxFormData.flow}
-                  onChange={handleMaxChange}
-                  className="mt-0.5 sm:mt-1 w-full px-1 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
-                  placeholder="Flow"
-                  step="0.001"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="maxFlowCondition"
-                  className="block text-[10px] sm:text-xs font-medium text-gray-700"
-                >
-                  Flow Condition
-                </label>
-                <input
-                  type="number"
-                  id="maxFlowCondition"
-                  name="flowCondition"
-                  value={maxFormData.flowCondition}
-                  onChange={handleMaxChange}
-                  className="mt-0.5 sm:mt-1 w-full px-1 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
-                  placeholder="Flow condition"
-                  step="0.001"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="maxControlValve"
-                  className="block text-[10px] sm:text-xs font-medium text-gray-700"
-                >
-                  Control Valve CV
-                </label>
-                <input
-                  type="number"
-                  id="maxControlValve"
-                  name="controlValve"
-                  value={maxFormData.controlValve}
-                  onChange={handleMaxChange}
-                  className="mt-0.5 sm:mt-1 w-full px-1 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
-                  placeholder="CV"
-                  step="0.001"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="maxInletTemp"
-                  className="block text-[10px] sm:text-xs font-medium text-gray-700"
-                >
-                  Inlet Temp (°C)
-                </label>
-                <input
-                  type="number"
-                  id="maxInletTemp"
-                  name="inletTemp"
-                  value={maxFormData.inletTemp}
-                  onChange={handleMaxChange}
-                  className="mt-0.5 sm:mt-1 w-full px-1 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
-                  placeholder="Temp"
-                  step="0.001"
-                />
-              </div>
-            </div>
-
-            {/* Max CV Gas Composition */}
-            <h4 className="text-xs sm:text-sm font-semibold text-gray-800 mt-1 sm:mt-2 mb-0.5 sm:mb-1">
-              Gas Composition (%)
-            </h4>
-            <div className="grid grid-cols-3 gap-1 sm:gap-2">
-              <div>
-                <label
-                  htmlFor="maxMethane"
-                  className="block text-[10px] sm:text-xs font-medium text-gray-700"
-                >
-                  CH4
-                </label>
-                <input
-                  type="number"
-                  id="maxMethane"
-                  name="methane"
-                  value={maxFormData.methane}
-                  onChange={handleMaxChange}
-                  className="mt-0.5 sm:mt-1 w-full px-1 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
-                  placeholder="0-100"
-                  min="0"
-                  max="100"
-                  step="0.001"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="maxCarbonDioxide"
-                  className="block text-[10px] sm:text-xs font-medium text-gray-700"
-                >
-                  CO2
-                </label>
-                <input
-                  type="number"
-                  id="maxCarbonDioxide"
-                  name="carbonDioxide"
-                  value={maxFormData.carbonDioxide}
-                  onChange={handleMaxChange}
-                  className="mt-0.5 sm:mt-1 w-full px-1 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
-                  placeholder="0-100"
-                  min="0"
-                  max="100"
-                  step="0.001"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="maxNitrogen"
-                  className="block text-[10px] sm:text-xs font-medium text-gray-700"
-                >
-                  N2
-                </label>
-                <input
-                  type="number"
-                  id="maxNitrogen"
-                  name="nitrogen"
-                  value={maxFormData.nitrogen}
-                  onChange={handleMaxChange}
-                  className="mt-0.5 sm:mt-1 w-full px-1 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
-                  placeholder="0-100"
-                  min="0"
-                  max="100"
-                  step="0.001"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="maxOxygen"
-                  className="block text-[10px] sm:text-xs font-medium text-gray-700"
-                >
-                  O2
-                </label>
-                <input
-                  type="number"
-                  id="maxOxygen"
-                  name="oxygen"
-                  value={maxFormData.oxygen}
-                  onChange={handleMaxChange}
-                  className="mt-0.5 sm:mt-1 w-full px-1 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
-                  placeholder="0-100"
-                  min="0"
-                  max="100"
-                  step="0.001"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="maxH2s"
-                  className="block text-[10px] sm:text-xs font-medium text-gray-700"
-                >
-                  H2S
-                </label>
-                <input
-                  type="number"
-                  id="maxH2s"
-                  name="h2s"
-                  value={maxFormData.h2s}
-                  onChange={handleMaxChange}
-                  className="mt-0.5 sm:mt-1 w-full px-1 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
-                  placeholder="0-100"
-                  min="0"
-                  max="100"
-                  step="0.001"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="maxWater"
-                  className="block text-[10px] sm:text-xs font-medium text-gray-700"
-                >
-                  H2O
-                </label>
-                <input
-                  type="number"
-                  id="maxWater"
-                  name="water"
-                  value={maxFormData.water}
-                  onChange={handleMaxChange}
-                  className="mt-0.5 sm:mt-1 w-full px-1 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
-                  placeholder="0-100"
-                  min="0"
-                  max="100"
+                  value={gasMassInput}
+                  onChange={(e) => setGasMassInput(e.target.value)}
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 text-xs sm:text-sm p-2 border h-8 sm:h-auto"
+                  placeholder="Gas mass will appear here"
                   step="0.001"
                 />
               </div>
             </div>
           </div>
 
-
-        </div>
-
-        {/* Submit Button */}
-        <button
-          type="submit"
-          className="mt-2 sm:mt-4 w-full md:w-2/6 bg-green-500 text-white py-1 px-4 rounded-md hover:bg-green-600 transition-colors text-xs sm:text-sm"
-        >
-          Calculate
-        </button>
-      </form>
+          {/* Results and Submit Button - mobile optimized */}
+          <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3">
+            <button
+              type="submit"
+              className="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-2 border border-transparent rounded-md shadow-sm text-xs sm:text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            >
+              Calculate
+            </button>
+            {ans && (
+              <div className="w-full sm:w-auto px-3 py-2 bg-green-50 rounded-md">
+                <p className="text-xs sm:text-sm font-medium text-green-800 text-center sm:text-left">
+                  {ans}
+                </p>
+              </div>
+            )}
+          </div>
+        </form>
+      </div>
     </div>
+
   );
 }

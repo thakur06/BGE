@@ -1,8 +1,8 @@
 import React from "react";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 
 const TableToExcel = () => {
-  // Sample table data (replace with your actual data source)
   const tableData = [
     ["Product", "Step", "Detail"],
     ["Valve A", "Step 1", "Detail 1"],
@@ -10,48 +10,82 @@ const TableToExcel = () => {
     ["Valve C", "Step 3", "Detail 3"],
   ];
 
-  const exportToExcel = () => {
-    // Create a new workbook
-    const wb = XLSX.utils.book_new();
+  const exportToExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Process Data");
 
-    // Convert table data to worksheet
-    const ws = XLSX.utils.aoa_to_sheet(tableData);
+    // 1. Add image
+    const imageUrl = "/biogas_logo.jpg"; // Make sure logo.png is inside public/
+    const response = await fetch(imageUrl);
+    const imageBlob = await response.blob();
+    const imageBuffer = await imageBlob.arrayBuffer();
 
-    // Bold the header row
-    const headerRange = XLSX.utils.decode_range("A1:C1"); // Range for first row (headers)
-    for (let col = headerRange.s.c; col <= headerRange.e.c; col++) {
-      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col }); // Row 0 (header)
-      if (!ws[cellAddress]) ws[cellAddress] = { t: "s", v: tableData[0][col] };
-      ws[cellAddress].s = {
-        font: { bold: true },
-        fill: { fgColor: { rgb: "E6E6E6" } }, // Light gray background for headers
-      };
-    }
+    const imageId = workbook.addImage({
+      buffer: imageBuffer,
+      extension: "jpg",
+    });
 
-    // Optional: Add some basic styling
-    ws["!cols"] = [
-      { wch: 20 }, // Product column width
-      { wch: 15 }, // Step column width
-      { wch: 25 }, // Detail column width
+    worksheet.addImage(imageId, {
+      tl: { col: 0, row: 0 },
+      ext: { width: 150, height: 80 },
+    });
+
+    // 2. Add table data starting from row 5 (leave space for image)
+    tableData.forEach((row, rowIndex) => {
+      const excelRow = worksheet.getRow(rowIndex + 6);
+      row.forEach((cell, colIndex) => {
+        const excelCell = excelRow.getCell(colIndex + 1);
+        excelCell.value = cell;
+
+        // Header row styling
+        if (rowIndex === 0) {
+          excelCell.font = { bold: true };
+          excelCell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFE6E6E6" }, // Light gray
+          };
+          excelCell.border = {
+            top: { style: "thin" },
+            left: { style: "thin" },
+            bottom: { style: "thin" },
+            right: { style: "thin" },
+          };
+        }
+      });
+      excelRow.commit();
+    });
+
+    // 3. Set column widths
+    worksheet.columns = [
+      { width: 20 }, // Product
+      { width: 15 }, // Step
+      { width: 25 }, // Detail
     ];
 
-    // Add worksheet to workbook
-    XLSX.utils.book_append_sheet(wb, ws, "Process Data");
+    // 4. Generate and download file
+    const buffer = await workbook.xlsx.writeBuffer();
+    const excelBlob = new Blob([buffer], {
+      type:
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
 
-    // Generate Excel file and trigger download
-    XLSX.writeFile(wb, `Biogas-process-data_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    saveAs(
+      excelBlob,
+      `Biogas-process-data_${new Date().toISOString().slice(0, 10)}.xlsx`
+    );
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 flex flex-col justify-center items-center">
       <h1 className="text-2xl font-bold text-amber-800 mb-4">
-        Table to Excel Export
+        Styled Excel Export (with Image)
       </h1>
 
-      {/* Display Table */}
+      {/* Table Preview */}
       <table className="w-full border-collapse mb-6">
         <thead>
-          <tr className="bg-gray-200">
+          <tr className="bg-gray-200 font-bold">
             <th className="border p-2 text-left">Product</th>
             <th className="border p-2 text-left">Step</th>
             <th className="border p-2 text-left">Detail</th>
@@ -68,10 +102,9 @@ const TableToExcel = () => {
         </tbody>
       </table>
 
-      {/* Export Button */}
       <button
         onClick={exportToExcel}
-        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-blue-600 transition"
       >
         Export to Excel
       </button>

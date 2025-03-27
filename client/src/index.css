@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+/* In your CSS file (e.g., index.css or global stylesheet) */
+.scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, and Opera */
+  }

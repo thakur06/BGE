@@ -1,0 +1,54 @@
+{
+  "dept":"Process",
+  "role":[
+          "Head of the Department",
+          "Overall Project Engineer Lead",
+          "Design Engineer",
+          "Supervisor/Checker",
+          "Senior Engineer",
+          "Drafts Person"
+        ],
+  "skills": {
+    "softSkills": {
+      "verbalCommunication": [4,2,3,1,3],
+      "emailCommunication": [4,2,3,1,3],
+      "businessEtiquetteAndProfessionalism": [4,2,3,1,3],
+      "presentationSkills": [4,2,3,1,3]
+    },
+    "technicalSkills": {
+      "asmeB313Piping": [4,2,3,1,3],
+      "asmeB1634ValvesFlangedThreaded": [4,2,3,1,3],
+      "asmeB165PipeFlangesFittings": [4,2,3,1,3],
+      "asmeB169FactoryMadeWrought": [4,2,3,1,3],
+      "asmeB361019WeldedSeamlessWrought": [4,2,3,1,3],
+      "asmeB1610FaceToFace": [4,2,3,1,3],
+      "asmeB1201EndConnectionsThreadedValve": [4,2,3,1,3],
+      "api594StdForCheckValve": [4,2,3,1,3],
+      "api598ValveInspectionTesting":[4,2,3,1,3] ,
+      "api602StdForGateValve": [4,2,3,1,3],
+      "api609StdForButterflyValve": [4,2,3,1,3],
+      "pipeThicknessCalculation": [4,2,3,1,3],
+      "flareToxSafetyZoneCalculation": [4,2,3,1,3],
+      "pipingMaterialSpecification": [4,2,3,1,3],
+      "skidConceptItsRequirement": [4,2,3,1,3],
+      "skidWeightCalculation": [4,2,3,1,3],
+      "truckDetailMovementRequirement": [4,2,3,1,3],
+      "plotPlanEquipmentLayoutPreparation": [4,2,3,1,3],
+      "areaClassificationLayout": [4,2,3,1,3],
+      "equipmentDetailsRequirement": [4,2,3,1,3],
+      "undergroundPipingLayoutRequirementDetailing": [4,2,3,1,3],
+      "pipeSupports": [4,2,3,1,3]
+    },
+    "softwareSkills": {
+      "autoCAD2D": [4,2,3,1,3],
+      "autoCAD3D": [4,2,3,1,3],
+      "database": [4,2,3,1,3],
+      "autoCADPId": [4,2,3,1,3]
+    },
+    "crossFunctionalSkills": {
+      "process": [4,2,3,1,3],
+      "electrical": [4,2,3,1,3],
+      "instrumentationControlSystems": [4,2,3,1,3]
+    }
+  }
+}

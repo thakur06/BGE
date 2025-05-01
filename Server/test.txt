@@ -1,0 +1,44 @@
+const mongoose = require('mongoose');
+
+const roleSkillsSchema = new mongoose.Schema({
+  role: {
+    type: String,
+    required: true,
+    enum: [
+      'Head of the Department',
+      'Overall Project Engineer Lead',
+      'Design Engineer',
+      'Supervisor/Checker',
+      'Senior Engineer',
+      'Drafts Person'
+    ]
+  },
+  skills: {
+    verbalCommunication: {
+      type: [Number],
+      required: true,
+      min: 1,
+      max: 5
+    },
+    emailCommunication: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5
+    },
+    businessEtiquetteAndProfessionalism: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5
+    },
+    presentationSkills: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5
+    }
+  }
+});
+
+module.exports = mongoose.model('RoleSkills', roleSkillsSchema);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 
 export function PLCV() {
   const stat = 379.49;
@@ -29,7 +29,7 @@ export function PLCV() {
 
   const [ans, setAns] = useState("");
   const [maxFormData, setMaxFormData] = useState({
-    unknown: "",
+    upstreamPressure: "",
     downstreamPressure: "",
     flow: "",
     flowCondition: "",
@@ -44,8 +44,9 @@ export function PLCV() {
   });
 
   const [maxRadio, setMaxRadio] = useState('required cv');
-
+const [FlowType, setFlowType] = useState("");
   const [max_xp1, setMaxexp1] = useState(0);
+  const [max_xp2, setMaxexp2] = useState(0);
   const [selectedGas, setSelectedGas] = useState("");
   const [gasMassInput, setGasMassInput] = useState("");
 
@@ -64,7 +65,7 @@ export function PLCV() {
       (1 * maxFormData.h2s * fx5 / stat) +
       (1 * maxFormData.water * fx6 / stat)) / 1;
 
-    setAns("gas density - " + result);
+    setAns("gas density - " + result/100);
   }
 
 
@@ -82,21 +83,31 @@ export function PLCV() {
 
   const handleMaxChange = (e) => {
     const { name, value } = e.target;
-    const numericValue = parseFloat(value);
-
-    if (name === "unknown") setMaxexp1(numericValue + 14.7);
-    if (name === "downstreamPressure") setMaxexp2(numericValue + 14.7);
-    console.log(max_xp1)
+    const numericValue = parseFloat(value) || 0; // Ensure numeric value
+    
     setMaxFormData((prev) => ({ ...prev, [name]: value }));
+  
+    if (name === "upstreamPressure") {
+      setMaxexp1(numericValue + 14.7);
+    } else if (name === "downstreamPressure") {
+      setMaxexp2(numericValue + 14.7);
+    }
   };
-
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
     gasDensity();
     console.log("Max CV Data:", maxFormData);
   };
-
+  useEffect(() => {
+    if (max_xp1 > max_xp2 * 2) {
+      setMaxFormData((prev) => ({ ...prev, flowCondition: "Critical Flow" }));
+    } else {
+      setMaxFormData((prev) => ({ ...prev, flowCondition: "Sub-Critical Flow" }));
+    }
+  }, [max_xp1, max_xp2]); // Runs whenever max_xp1 or max_xp2 changes
+  
   return (
 <div className="min-h-screen bg-gray-50 py-4 px-3 sm:px-6">
       <div className="max-w-4xl mx-auto">
@@ -133,25 +144,26 @@ export function PLCV() {
               {/* Input Grid - optimized for mobile */}
               <div className="grid grid-cols-1 gap-3 mb-4 sm:mb-6 sm:grid-cols-2 sm:gap-4">
                 {[
-                  { name: "unknown", label: "Unknown", step: "0.001" },
-                  { name: "downstreamPressure", label: "P2 (bar)", step: "0.01" },
-                  { name: "flow", label: "Flow", step: "0.001" },
-                  { name: "flowCondition", label: "Flow Condition", step: "0.001" },
-                  { name: "controlValve", label: "Control Valve CV", step: "0.001" },
-                  { name: "inletTemp", label: "Inlet Temp (°C)", step: "0.001" }
+                  { name: "upstreamPressure", label: "P1 (bar)", step: "0.00000001" ,readonly:false, type:"number",custom:""},
+                  { name: "downstreamPressure", label: "P2 (bar)", step: "0.000000001" , readonly:false ,type:"number",custom:""},
+                  { name: "flow", label: "Flow", step: "0.00000001" , readonly:false,type:"number",custom:""},
+                  { name: "flowCondition", label: "Flow Condition", step: "" , readonly:true, type:"text",custom:"text-red-500 font-bold"},
+                  { name: "controlValve", label: "Control Valve CV", step: "0.00000001",readonly:false ,type:"number",custom:""},
+                  { name: "inletTemp", label: "Inlet Temp (°C)", step: "0.00000001",readonly:false ,type:"number",custom:""}
                 ].map((field) => (
                   <div key={field.name} className="space-y-1 sm:space-y-2">
                     <label className="block text-xs sm:text-sm font-medium text-gray-700">
                       {field.label}
                     </label>
                     <input
-                      type="number"
+                      type={field.type}
                       name={field.name}
                       value={maxFormData[field.name]}
                       onChange={handleMaxChange}
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 text-xs sm:text-sm p-2 border h-8 sm:h-auto"
+                      className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 text-xs sm:text-sm p-2 border h-8 sm:h-auto ${field.custom}`}
                       placeholder={field.label}
                       step={field.step}
+                      readOnly={field.readonly}
                     />
                   </div>
                 ))}
@@ -184,7 +196,7 @@ export function PLCV() {
                         placeholder="0-100"
                         min="0"
                         max="100"
-                        step="0.001"
+                        step="0.00000001"
                       />
                     </div>
                   ))}
@@ -224,7 +236,7 @@ export function PLCV() {
                   onChange={(e) => setGasMassInput(e.target.value)}
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 text-xs sm:text-sm p-2 border h-8 sm:h-auto"
                   placeholder="Gas mass will appear here"
-                  step="0.001"
+                  step="0.00000001"
                 />
               </div>
             </div>

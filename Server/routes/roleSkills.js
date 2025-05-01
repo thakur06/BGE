@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const roleSkillController = require('../controllers/roleSkillsController');
+const { createRoleSkills } = require('../controllers/rolecontroller');
 
-router.post('/', roleSkillController.assignSkillToRole);
-router.get('/', roleSkillController.getRoleSkills);
+router.post('/', createRoleSkills);
 
 module.exports = router;

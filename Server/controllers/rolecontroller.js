@@ -1,20 +1,13 @@
-const Role = require('../models/role');
+const RoleSkills = require('../models/roleSkills');
 
-exports.createRole = async (req, res) => {
+const createRoleSkills = async (req, res) => {
   try {
-    const role = new Role(req.body);
-    await role.save();
-    res.status(201).json(role);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+    const roleSkills = new RoleSkills(req.body);
+    const newRoleSkills = await roleSkills.save();
+    res.status(201).json(newRoleSkills);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 };
-exports.getRoles = async (req, res) => {
-    try {
-      const roles = await Role.find();
-      res.json(roles);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  };
-  
+
+module.exports = { createRoleSkills };

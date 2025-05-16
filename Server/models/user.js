@@ -1,6 +1,6 @@
-// userSchema.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 // Define the User Schema
 const userSchema = new mongoose.Schema({
@@ -26,12 +26,12 @@ const userSchema = new mongoose.Schema({
   },
   reportsto: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Reference to another User (self-referential)
-    default: null, // Null if no manager
+    ref: 'User',
+    default: null,
   },
   reportshimher: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Array of User IDs who report to this user
+    ref: 'User',
   }],
   role: {
     type: String,
@@ -43,11 +43,14 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Department is required'],
     trim: true,
   },
+  // 👇 NEW FIELDS FOR RESET PASSWORD
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
 }, {
-  timestamps: true, // Automatically add createdAt and updatedAt fields
+  timestamps: true,
 });
 
-// Pre-save hook to hash password before saving
+// Pre-save hook to hash password
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   try {
@@ -59,12 +62,18 @@ userSchema.pre('save', async function (next) {
   }
 });
 
-// Method to compare passwords for login
+// Compare passwords
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// Create the User model
-const User = mongoose.model('User', userSchema);
+// 👇 Method to create a password reset token
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+  this.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+  return resetToken;
+};
 
+const User = mongoose.model('User', userSchema);
 module.exports = User;

@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const sendForgotPasswordEmail = require('../mail/handler/forgotPassword');
+const crypto = require('crypto');
 // Create a new user
 exports.createUser = async (req, res) => {
   try {
@@ -113,6 +114,7 @@ exports.resetPassword = async (req, res) => {
     resetPasswordExpires: { $gt: Date.now() },
   });
 
+  console.log(user)
   if (!user) {
     return res.status(400).json({ message: 'Invalid or expired token' });
   }

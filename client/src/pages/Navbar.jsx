@@ -9,6 +9,7 @@ function Navbar() {
     { label: "Process", to: "/process" },
     { label: "Electrical", to: "/electrical" },
     { label: "Mechanical", to: "/mechanical" },
+    { label: "IT Admin", to: "/it_admin" },
   ];
 
   return (

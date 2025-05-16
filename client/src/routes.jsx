@@ -5,6 +5,7 @@ import SignIn from "./pages/SignIn";
 import { Home } from "./pages/Home";
 import { PLCV } from "./process/PLCV";
 import H2S from "./process/H2S";
+import { IT_Admin } from "./admin/IT_Admin";
 import { Details } from "./process/Details";
 // Layout component with Navbar and Outlet
 function Layout() {
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
       {
         path: "signin", // "/signin"
         element: <SignIn />,
+      },
+      {
+        path: "it_admin", // "/signin"
+        element: <IT_Admin/>,
       },
       {
         path: "process", // "/process"

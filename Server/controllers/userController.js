@@ -1,6 +1,6 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
-
+const sendForgotPasswordEmail = require('../mail/handler/forgotPassword');
 // Create a new user
 exports.createUser = async (req, res) => {
   try {
@@ -73,4 +73,54 @@ exports.loginUser = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
+
+// Forgot Password: Send reset email
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: 'Email is required' });
+
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ message: 'User not found' });
+ console.log(user)
+  const resetToken = user.createPasswordResetToken();
+  await user.save({ validateBeforeSave: false });
+
+  const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
+
+  try {
+    await sendForgotPasswordEmail(user.email, resetLink,user.username);
+    res.json({ message: 'Reset email sent successfully' });
+  } catch (err) {
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+    res.status(500).json({ message: 'Failed to send email', error: err.message });
+  }
+};
+
+// Reset Password: Validate token and update password
+exports.resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+  if (!token || !newPassword) {
+    return res.status(400).json({ message: 'Token and new password are required' });
+  }
+
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpires: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return res.status(400).json({ message: 'Invalid or expired token' });
+  }
+
+  user.password = newPassword; // Will be hashed by pre-save hook
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+  await user.save();
+
+  res.json({ message: 'Password has been reset successfully' });
 };
